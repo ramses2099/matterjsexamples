@@ -1,0 +1,24 @@
+{
+  "name": "matterjsexamples",
+  "version": "1.0.0",
+  "description": "matter.js examples",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start":"lite-server index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ramses2099/matterjsexamples.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ramses2099/matterjsexamples/issues"
+  },
+  "homepage": "https://github.com/ramses2099/matterjsexamples#readme",
+  "dependencies": {
+    "lite-server": "^2.6.1"
+  }
+}
