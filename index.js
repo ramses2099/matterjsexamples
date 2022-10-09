@@ -4,10 +4,13 @@ const canvas = document.getElementById('divcanva');
 Matter js
 ----------------------------------------------------------*/
 
-const { Engine, Render, Runner, Body, Bodies, Composite, Mouse, MouseConstraint, Events} = Matter;
+const { Engine, Render, World, Runner, Body, Bodies, Composite, Mouse, MouseConstraint, Events} = Matter;
 
 //engine
 const engine = Engine.create();
+// create world
+const world = engine.world;
+
 
 //render
 const render = Render.create({
@@ -51,24 +54,28 @@ Keyboard
 ----------------------------------------------------------*/
 const keyHandlers = {
     ArrowUp:() => {
-        Body.applyForce(boxSprite,
-            {x: boxSprite.position.x, y: boxSprite.position.y},
-            {x:0 , y: -0.02});
+        Body.setVelocity(player.body,{
+            x: player.body.velocity.x,
+            y: (player.yVel + player.speed) * -1
+        })
     },
     ArrowDown:() => {
-        Body.applyForce(boxSprite,
-            {x: boxSprite.position.x, y: boxSprite.position.y},
-            {x:0 , y: 0.02});
+        Body.setVelocity(player.body,{
+            x: player.body.velocity.x,
+            y: (player.yVel + player.speed) * -1
+        })
     },
     ArrowRight:() => {
-        Body.applyForce(boxSprite,
-            {x: boxSprite.position.x, y: boxSprite.position.y},
-            {x:0.02 , y: 0});
+        Body.setVelocity(player.body,{
+            x: (player.yVel + player.speed),
+            y:  player.body.velocity.y
+        })
     },
     ArrowLeft:() => {
-        Body.applyForce(boxSprite,
-            {x: boxSprite.position.x, y: boxSprite.position.y},
-            {x:-0.02 , y: 0});
+        Body.setVelocity(player.body,{
+            x: (player.yVel + player.speed) * -1,
+            y:  player.body.velocity.y
+        })
     },
 };
 
@@ -90,8 +97,6 @@ Events.on(engine, "beforeUpdate", function(event){
 
 });
 
-
-
 /*--------------------------------------------------------
 Bodies
 ----------------------------------------------------------*/
@@ -101,9 +106,10 @@ Bodies
 var boxA = Bodies.rectangle(400, 200, 80, 80);
 var boxB = Bodies.rectangle(450, 50, 80, 80);
 
-var boxSprite = Bodies.rectangle(350, 50, 32, 32 ,{
+var bodyPlayer = Bodies.rectangle(350, 50, 32, 32 ,{
     inertia: Infinity,
     friction: 0.1,
+    ignoreGravity: true,
     render:{
         sprite: sprite
     }
@@ -113,9 +119,38 @@ var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true, render: { fil
 var left = Bodies.rectangle(0, 0, 10, 2000, { isStatic: true, render: { fillStyle: '#6F2020' }});
 var right = Bodies.rectangle(800, 0, 10, 2000, { isStatic: true, render: { fillStyle: '#6F2020' }});
 
+//Array
+let bodies = new Array();
+
+
+
+
+/*--------------------------------------------------------
+Class
+----------------------------------------------------------*/
+
+class MatterBody{
+    constructor(body){
+        this.body = body;
+        this.dead = false;
+        this.xVel = 0;
+        this.yVel = 0;
+        this.speed = 5;
+
+        World.add(world, this.body);
+        
+    }
+}
+
+const player = new MatterBody(bodyPlayer);
+
+bodies.push(player);
+
+bodies.push(...[boxA, boxB, ground, left, right, mouseContraint]);
 
 // add all of the bodies to the world
-Composite.add(engine.world, [boxA, boxB, ground, left, right, boxSprite, mouseContraint]);
+Composite.add(world, bodies);
+
 
 
 // run the renderer
@@ -127,6 +162,14 @@ var runner = Runner.create({
     isFixed: false,
     enabled: true
 });
+
+//update
+Events.on(runner,'tick',function(event){
+    let {delta} = event.source;
+    //console.log(delta);
+});
+
+
 
 // run the engine
 Runner.run(runner, engine);
